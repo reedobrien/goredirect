@@ -1,0 +1,11 @@
+{
+	"www.example.com":{
+		"/foo":"/bar",
+		"/spam/":"/eggs/",
+		"/spam/":"/ham"
+		},
+	"localhost":{
+		"/baz":"/buz/",
+		"/local":"http://example.com/remote/"
+		}
+}
