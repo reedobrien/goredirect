@@ -10,6 +10,7 @@ import (
 	"net/http"
 	// "os"
 	"strings"
+	"time"
 )
 
 var rules map[string]map[string]string
@@ -42,7 +43,7 @@ func main() {
 	}
 
 	http.HandleFunc("/", handler(redirectHandler, rules))
-	log.Fatal(http.ListenAndServe(*address+":"+*port, nil))
+	log.Fatal(http.ListenAndServe(*address+":"+*port, Log(http.DefaultServeMux)))
 	// reqpath := strings.Trim(req.URL.Path, "/")
 }
 
@@ -53,14 +54,23 @@ func redirectHandler(w http.ResponseWriter, r *http.Request, rules map[string]ma
 func handler(fn func(http.ResponseWriter, *http.Request, map[string]map[string]string), rules map[string]map[string]string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		target := rules[strings.Split(r.Host, ":")[0]][r.URL.Path]
-		fmt.Println("target", target)
 		if target == "" {
 			http.NotFound(w, r)
 			return
 		}
 		http.Redirect(w, r, target, http.StatusMovedPermanently)
+		return
 	}
 
 	// fmt.Println(rules)
 	// fmt.Fprintf(w, "Hi there, I love %s!\n", r.URL.Path)
+}
+
+func Log(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t := time.Now()
+		fmt.Printf("%s - %s [%s] \"%s %s %s\" - -\n",
+			strings.Split(r.RemoteAddr, ":")[0], r.URL.User, t.Format("02/Jan/2006:15:04:05 -0700"), r.Method, r.URL, r.Proto)
+		handler.ServeHTTP(w, r)
+	})
 }
