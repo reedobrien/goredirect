@@ -14,6 +14,8 @@ import (
 )
 
 var rules map[string]map[string]string
+var status int = http.StatusNotFound
+var size int = 19
 
 func main() {
 	// log, err := syslog.New(syslog.LOG_ERR, "godir")
@@ -58,7 +60,9 @@ func handler(fn func(http.ResponseWriter, *http.Request, map[string]map[string]s
 			http.NotFound(w, r)
 			return
 		}
-		http.Redirect(w, r, target, http.StatusMovedPermanently)
+		status = http.StatusMovedPermanently
+		size = 0
+		http.Redirect(w, r, target, status)
 		return
 	}
 
@@ -69,8 +73,8 @@ func handler(fn func(http.ResponseWriter, *http.Request, map[string]map[string]s
 func Log(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		t := time.Now()
-		fmt.Printf("%s - %s [%s] \"%s %s %s\" - -\n",
-			strings.Split(r.RemoteAddr, ":")[0], r.URL.User, t.Format("02/Jan/2006:15:04:05 -0700"), r.Method, r.URL, r.Proto)
+		fmt.Printf("%s - %s [%s] \"%s %s %s\" %d %d \"%s\" \"%s\"\n",
+			strings.Split(r.RemoteAddr, ":")[0], r.URL.User, t.Format("02/Jan/2006:15:04:05 -0700"), r.Method, r.URL, r.Proto, status, size, r.Referer(), r.UserAgent())
 		handler.ServeHTTP(w, r)
 	})
 }
