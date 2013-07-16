@@ -1,6 +1,0 @@
-alias,target
-/foo,/bar
-/spam/,/eggs/
-/spam/,/ham
-/baz,/buz/
-/local,http://example.com/remote/
