@@ -1,15 +1,18 @@
 package main
 
 import (
-	"encoding/csv"
+	"encoding/json"
 	"flag"
 	"fmt"
-	"io"
+	// "io"
+	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
+	// "os"
 	"strings"
 )
+
+var rules map[string]map[string]string
 
 func main() {
 	// log, err := syslog.New(syslog.LOG_ERR, "godir")
@@ -26,44 +29,30 @@ func main() {
 		log.Fatalln("You must supply a mapping file")
 	}
 	fmt.Println("Starting godir...")
-	rules := make(map[string]string)
-	f, err := os.Open(*path)
-	defer f.Close()
+	// rules := make(map[string]string)
+	f, err := ioutil.ReadFile(*path)
+	// defer f.Close()
 	if err != nil {
-		panic("Cant read file")
+		log.Panicln("Cant read file", err)
 	}
 
-	reader := csv.NewReader(f)
-
-	for {
-		row, err := reader.Read()
-		// stop at end of file
-		if err == io.EOF {
-			break
-		}
-		// ignore comments
-		if strings.HasPrefix(row[0], "#") {
-			continue
-		}
-		// build the rules map
-		rules[row[0]] = row[1]
-		// ignore empty lines
-		if len(row) == 0 {
-			break
-		}
+	err = json.Unmarshal(f, &rules)
+	if err != nil {
+		log.Panicln("Can't read file", err)
 	}
+
 	http.HandleFunc("/", handler(redirectHandler, rules))
 	log.Fatal(http.ListenAndServe(*address+":"+*port, nil))
 	// reqpath := strings.Trim(req.URL.Path, "/")
 }
 
-func redirectHandler(w http.ResponseWriter, r *http.Request, rules map[string]string) {
+func redirectHandler(w http.ResponseWriter, r *http.Request, rules map[string]map[string]string) {
 	fmt.Println(rules)
 }
 
-func handler(fn func(http.ResponseWriter, *http.Request, map[string]string), rules map[string]string) http.HandlerFunc {
+func handler(fn func(http.ResponseWriter, *http.Request, map[string]map[string]string), rules map[string]map[string]string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		target := rules[r.URL.Path]
+		target := rules[strings.Split(r.Host, ":")[0]][r.URL.Path]
 		fmt.Println("target", target)
 		if target == "" {
 			http.NotFound(w, r)
