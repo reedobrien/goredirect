@@ -82,7 +82,8 @@ func handler(fn func(http.ResponseWriter, *http.Request, map[string]map[string]s
 			return
 		}
 		status = http.StatusMovedPermanently
-		size = 0
+		//  len("<a href="">Moved Permanently</a>." == 33
+		size = len(target) + 33
 		http.Redirect(w, r, target, status)
 		return
 	}
