@@ -17,6 +17,7 @@ import (
 var rules map[string]map[string]string
 var size int = 19
 var status int = http.StatusNotFound
+var user string = "-"
 
 func main() {
 	address := flag.String("address", "127.0.0.1", "The address to listen on")
@@ -88,8 +89,13 @@ func handler(fn func(http.ResponseWriter, *http.Request, map[string]map[string]s
 func Log(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		t := time.Now()
+		if r.URL.User != nil {
+			user = r.URL.User.Username()
+		} else {
+			user = "-"
+		}
 		fmt.Printf("%s - %s [%s] \"%s %s %s\" %d %d \"%s\" \"%s\"\n",
-			strings.Split(r.RemoteAddr, ":")[0], r.URL.User, t.Format("02/Jan/2006:15:04:05 -0700"), r.Method, r.URL, r.Proto, status, size, r.Referer(), r.UserAgent())
+			strings.Split(r.RemoteAddr, ":")[0], user, t.Format("02/Jan/2006:15:04:05 -0700"), r.Method, r.URL, r.Proto, status, size, r.Referer(), r.UserAgent())
 		handler.ServeHTTP(w, r)
 	})
 }
