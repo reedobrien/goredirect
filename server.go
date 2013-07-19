@@ -65,30 +65,22 @@ func main() {
 		}()
 	}
 
-	http.HandleFunc("/", handler(redirectHandler, rules))
+	http.HandleFunc("/", handler)
 	log.Fatal(http.ListenAndServe(*address+":"+*port, Log(http.DefaultServeMux)))
 }
 
-func redirectHandler(w http.ResponseWriter, r *http.Request, rules map[string]map[string]string) {
-	// this function does nothing remove it and setup the handler to have
-	// the right signature for http.HandleFunc
-	log.Println(rules)
-}
-
-func handler(fn func(http.ResponseWriter, *http.Request, map[string]map[string]string), rules map[string]map[string]string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Server", fmt.Sprintf("goredirect/%s", VERSION))
-		target := rules[strings.Split(r.Host, ":")[0]][r.URL.Path]
-		if target == "" {
-			http.NotFound(w, r)
-			return
-		}
-		status = http.StatusMovedPermanently
-		//  len("<a href="">Moved Permanently</a>." == 33
-		size = len(target) + 33
-		http.Redirect(w, r, target, status)
+func handler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", fmt.Sprintf("goredirect/%s", VERSION))
+	target := rules[strings.Split(r.Host, ":")[0]][r.URL.Path]
+	if target == "" {
+		http.NotFound(w, r)
 		return
 	}
+	status = http.StatusMovedPermanently
+	//  len("<a href="">Moved Permanently</a>." == 33
+	size = len(target) + 33
+	http.Redirect(w, r, target, status)
+	return
 }
 
 func Log(handler http.Handler) http.Handler {
