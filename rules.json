@@ -6,6 +6,8 @@
 		},
 	"localhost":{
 		"/baz":"/buz/",
-		"/local":"http://example.com/remote/"
-		}
+		"/local":"http://example.com/remote/",
+        "/tomorrow/": "http://example.com/gone",
+        "/here": "http://example.com/today"
+        }
 }
