@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	// "os"
+	"github.com/howeyc/fsnotify"
 	"strings"
 	"time"
 )
@@ -27,16 +28,38 @@ func main() {
 		log.Fatalln("You must supply a mapping file")
 	}
 
+	log.Println("Starting godir...")
 
 	log.Println("Loading rules from:", *path)
+	err := loadRules(*path)
 	if err != nil {
-		log.Panicln("Cant read file", err)
+		log.Fatalln(err)
 	}
 
-	err = json.Unmarshal(f, &rules)
+	log.Println("Starting watcher for ", *path)
+	watcher, err := fsnotify.NewWatcher()
+	watcher.Watch(*path)
 	if err != nil {
-		log.Panicln("Can't read file", err)
+		log.Println("Can't watch file", *path)
 	}
+	go func() {
+		for {
+			select {
+			case ev := <-watcher.Event:
+				if ev.IsModify() {
+					log.Println(ev.Name, "updated, attempting reload...")
+					err := loadRules(ev.Name)
+					if err != nil {
+						log.Println("Couln't reload rules: ", err)
+					} else {
+						log.Println("Reloaded rules from", ev.Name)
+					}
+				}
+			case err := <-watcher.Error:
+				log.Println("Error watching file:", *path, err)
+			}
+		}
+	}()
 
 	http.HandleFunc("/", handler(redirectHandler, rules))
 	log.Fatal(http.ListenAndServe(*address+":"+*port, Log(http.DefaultServeMux)))
@@ -67,4 +90,16 @@ func Log(handler http.Handler) http.Handler {
 			strings.Split(r.RemoteAddr, ":")[0], r.URL.User, t.Format("02/Jan/2006:15:04:05 -0700"), r.Method, r.URL, r.Proto, status, size, r.Referer(), r.UserAgent())
 		handler.ServeHTTP(w, r)
 	})
+}
+
+func loadRules(path string) (err error) {
+	f, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(f, &rules)
+	if err != nil {
+		return err
+	}
+	return
 }
