@@ -15,8 +15,8 @@ import (
 )
 
 var rules map[string]map[string]string
-var status int = http.StatusNotFound
 var size int = 19
+var status int = http.StatusNotFound
 
 func main() {
 	address := flag.String("address", "127.0.0.1", "The address to listen on")
