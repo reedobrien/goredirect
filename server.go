@@ -24,7 +24,7 @@ func main() {
 	address := flag.String("address", "127.0.0.1", "The address to listen on")
 	path := flag.String("path", "", "Path to the json file of redirects")
 	port := flag.String("port", "8080", "The port to listen on")
-	// watch := flag.Bool("watch", false, "Watch for CSV file changes")
+	watch := flag.Bool("watch", false, "Watch for CSV file changes")
 	flag.Parse()
 	if *path == "" {
 		log.Fatalln("You must supply a mapping file")
@@ -38,30 +38,32 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	log.Println("Starting watcher for ", *path)
-	watcher, err := fsnotify.NewWatcher()
-	watcher.Watch(*path)
-	if err != nil {
-		log.Println("Can't watch file", *path)
-	}
-	go func() {
-		for {
-			select {
-			case ev := <-watcher.Event:
-				if ev.IsModify() {
-					log.Println(ev.Name, "updated, attempting reload...")
-					err := loadRules(ev.Name)
-					if err != nil {
-						log.Println("Couln't reload rules: ", err)
-					} else {
-						log.Println("Reloaded rules from", ev.Name)
-					}
-				}
-			case err := <-watcher.Error:
-				log.Println("Error watching file:", *path, err)
-			}
+	if *watch {
+		log.Println("Starting watcher for", *path)
+		watcher, err := fsnotify.NewWatcher()
+		watcher.Watch(*path)
+		if err != nil {
+			log.Println("Can't watch file", *path)
 		}
-	}()
+		go func() {
+			for {
+				select {
+				case ev := <-watcher.Event:
+					if ev.IsModify() {
+						log.Println(ev.Name, "updated, attempting reload...")
+						err := loadRules(ev.Name)
+						if err != nil {
+							log.Println("Couln't reload rules: ", err)
+						} else {
+							log.Println("Reloaded rules from", ev.Name)
+						}
+					}
+				case err := <-watcher.Error:
+					log.Println("Error watching file:", *path, err)
+				}
+			}
+		}()
+	}
 
 	http.HandleFunc("/", handler(redirectHandler, rules))
 	log.Fatal(http.ListenAndServe(*address+":"+*port, Log(http.DefaultServeMux)))
