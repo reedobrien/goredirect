@@ -66,6 +66,8 @@ func main() {
 }
 
 func redirectHandler(w http.ResponseWriter, r *http.Request, rules map[string]map[string]string) {
+	// this function does nothing remove it and setup the handler to have
+	// the right signature for http.HandleFunc
 	log.Println(rules)
 }
 
