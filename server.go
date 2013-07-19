@@ -22,28 +22,28 @@ var VERSION string = "1.0.0"
 
 func main() {
 	address := flag.String("address", "127.0.0.1", "The address to listen on")
-	path := flag.String("path", "", "Path to the json file of redirects")
+	rulesPath := flag.String("rules", "", "Path to the JSON file of redirects")
 	port := flag.String("port", "8080", "The port to listen on")
-	watch := flag.Bool("watch", false, "Watch for CSV file changes")
+	watch := flag.Bool("watch", false, "Watch for JSON rules file changes")
 	flag.Parse()
-	if *path == "" {
+	if *rulesPath == "" {
 		log.Fatalln("You must supply a mapping file")
 	}
 
 	fmt.Printf("Starting godir...listening on http://%s:%s\n", *address, *port)
 
-	log.Println("Loading rules from:", *path)
-	err := loadRules(*path)
+	log.Println("Loading rules from:", *rulesPath)
+	err := loadRules(*rulesPath)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	if *watch {
-		log.Println("Starting watcher for", *path)
+		log.Println("Starting watcher for", *rulesPath)
 		watcher, err := fsnotify.NewWatcher()
-		watcher.Watch(*path)
+		watcher.Watch(*rulesPath)
 		if err != nil {
-			log.Println("Can't watch file", *path)
+			log.Println("Can't watch file", *rulesPath)
 		}
 		go func() {
 			for {
@@ -59,7 +59,7 @@ func main() {
 						}
 					}
 				case err := <-watcher.Error:
-					log.Println("Error watching file:", *path, err)
+					log.Println("Error watching file:", *rulesPath, err)
 				}
 			}
 		}()
