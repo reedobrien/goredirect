@@ -18,11 +18,6 @@ var status int = http.StatusNotFound
 var size int = 19
 
 func main() {
-	// log, err := syslog.New(syslog.LOG_ERR, "godir")
-	// if err != nil {
-	// 	panic("Could connect to syslog")
-	// }
-	// log.Info("Starting godir")
 	address := flag.String("address", "127.0.0.1", "The address to listen on")
 	path := flag.String("path", "", "Path to the csv of redirects")
 	port := flag.String("port", "8080", "The port to listen on")
@@ -46,7 +41,6 @@ func main() {
 
 	http.HandleFunc("/", handler(redirectHandler, rules))
 	log.Fatal(http.ListenAndServe(*address+":"+*port, Log(http.DefaultServeMux)))
-	// reqpath := strings.Trim(req.URL.Path, "/")
 }
 
 func redirectHandler(w http.ResponseWriter, r *http.Request, rules map[string]map[string]string) {
@@ -65,9 +59,6 @@ func handler(fn func(http.ResponseWriter, *http.Request, map[string]map[string]s
 		http.Redirect(w, r, target, status)
 		return
 	}
-
-	// fmt.Println(rules)
-	// fmt.Fprintf(w, "Hi there, I love %s!\n", r.URL.Path)
 }
 
 func Log(handler http.Handler) http.Handler {
