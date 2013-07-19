@@ -18,6 +18,7 @@ var rules map[string]map[string]string
 var size int = 19
 var status int = http.StatusNotFound
 var user string = "-"
+var VERSION string = "1.0.0"
 
 func main() {
 	address := flag.String("address", "127.0.0.1", "The address to listen on")
@@ -74,6 +75,7 @@ func redirectHandler(w http.ResponseWriter, r *http.Request, rules map[string]ma
 
 func handler(fn func(http.ResponseWriter, *http.Request, map[string]map[string]string), rules map[string]map[string]string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Server", fmt.Sprintf("goredirect/%s", VERSION))
 		target := rules[strings.Split(r.Host, ":")[0]][r.URL.Path]
 		if target == "" {
 			http.NotFound(w, r)
