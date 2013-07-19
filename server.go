@@ -22,71 +22,65 @@ var VERSION string = "1.0.0"
 
 func main() {
 	address := flag.String("address", "127.0.0.1", "The address to listen on")
-	path := flag.String("path", "", "Path to the json file of redirects")
+	rulesPath := flag.String("rules", "", "Path to the JSON file of redirects")
 	port := flag.String("port", "8080", "The port to listen on")
-	// watch := flag.Bool("watch", false, "Watch for CSV file changes")
+	watch := flag.Bool("watch", false, "Watch for JSON rules file changes")
 	flag.Parse()
-	if *path == "" {
+	if *rulesPath == "" {
 		log.Fatalln("You must supply a mapping file")
 	}
 
 	fmt.Printf("Starting godir...listening on http://%s:%s\n", *address, *port)
 
-	log.Println("Loading rules from:", *path)
-	err := loadRules(*path)
+	log.Println("Loading rules from:", *rulesPath)
+	err := loadRules(*rulesPath)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	log.Println("Starting watcher for ", *path)
-	watcher, err := fsnotify.NewWatcher()
-	watcher.Watch(*path)
-	if err != nil {
-		log.Println("Can't watch file", *path)
-	}
-	go func() {
-		for {
-			select {
-			case ev := <-watcher.Event:
-				if ev.IsModify() {
-					log.Println(ev.Name, "updated, attempting reload...")
-					err := loadRules(ev.Name)
-					if err != nil {
-						log.Println("Couln't reload rules: ", err)
-					} else {
-						log.Println("Reloaded rules from", ev.Name)
-					}
-				}
-			case err := <-watcher.Error:
-				log.Println("Error watching file:", *path, err)
-			}
+	if *watch {
+		log.Println("Starting watcher for", *rulesPath)
+		watcher, err := fsnotify.NewWatcher()
+		watcher.Watch(*rulesPath)
+		if err != nil {
+			log.Println("Can't watch file", *rulesPath)
 		}
-	}()
+		go func() {
+			for {
+				select {
+				case ev := <-watcher.Event:
+					if ev.IsModify() {
+						log.Println(ev.Name, "updated, attempting reload...")
+						err := loadRules(ev.Name)
+						if err != nil {
+							log.Println("Couln't reload rules: ", err)
+						} else {
+							log.Println("Reloaded rules from", ev.Name)
+						}
+					}
+				case err := <-watcher.Error:
+					log.Println("Error watching file:", *rulesPath, err)
+				}
+			}
+		}()
+	}
 
-	http.HandleFunc("/", handler(redirectHandler, rules))
+	http.HandleFunc("/", handler)
 	log.Fatal(http.ListenAndServe(*address+":"+*port, Log(http.DefaultServeMux)))
 }
 
-func redirectHandler(w http.ResponseWriter, r *http.Request, rules map[string]map[string]string) {
-	// this function does nothing remove it and setup the handler to have
-	// the right signature for http.HandleFunc
-	log.Println(rules)
-}
-
-func handler(fn func(http.ResponseWriter, *http.Request, map[string]map[string]string), rules map[string]map[string]string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Server", fmt.Sprintf("goredirect/%s", VERSION))
-		target := rules[strings.Split(r.Host, ":")[0]][r.URL.Path]
-		if target == "" {
-			http.NotFound(w, r)
-			return
-		}
-		status = http.StatusMovedPermanently
-		//  len("<a href="">Moved Permanently</a>." == 33
-		size = len(target) + 33
-		http.Redirect(w, r, target, status)
+func handler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", fmt.Sprintf("goredirect/%s", VERSION))
+	target := rules[strings.Split(r.Host, ":")[0]][r.URL.Path]
+	if target == "" {
+		http.NotFound(w, r)
 		return
 	}
+	status = http.StatusMovedPermanently
+	//  len("<a href="">Moved Permanently</a>." == 33
+	size = len(target) + 33
+	http.Redirect(w, r, target, status)
+	return
 }
 
 func Log(handler http.Handler) http.Handler {
