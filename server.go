@@ -4,12 +4,10 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	// "io"
+	"github.com/howeyc/fsnotify"
 	"io/ioutil"
 	"log"
 	"net/http"
-	// "os"
-	"github.com/howeyc/fsnotify"
 	"strings"
 	"time"
 )
