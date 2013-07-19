@@ -9,5 +9,11 @@
 		"/local":"http://example.com/remote/",
         "/tomorrow/": "http://example.com/gone",
         "/here": "http://example.com/today"
-        }
+		},
+	"toshiba.local":{
+		"/happy": "http://example.com/hour",
+		"/koan": "https://example.com/riddle",
+		"/last": "/time",
+		"/": "/?word=foo"		
+	}
 }
