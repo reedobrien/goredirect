@@ -26,10 +26,9 @@ func main() {
 	if *path == "" {
 		log.Fatalln("You must supply a mapping file")
 	}
-	fmt.Println("Starting godir...")
-	// rules := make(map[string]string)
-	f, err := ioutil.ReadFile(*path)
-	// defer f.Close()
+
+
+	log.Println("Loading rules from:", *path)
 	if err != nil {
 		log.Panicln("Cant read file", err)
 	}
@@ -44,7 +43,7 @@ func main() {
 }
 
 func redirectHandler(w http.ResponseWriter, r *http.Request, rules map[string]map[string]string) {
-	fmt.Println(rules)
+	log.Println(rules)
 }
 
 func handler(fn func(http.ResponseWriter, *http.Request, map[string]map[string]string), rules map[string]map[string]string) http.HandlerFunc {
