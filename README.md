@@ -12,7 +12,7 @@ Usage:
 
 ## Availability
 
-go get http://gidhub.com/reedobrien/goredirect
+go get http://github.com/reedobrien/goredirect
 
 or grab a [compiled binary][downloads]
 
