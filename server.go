@@ -16,11 +16,11 @@ import (
 	"time"
 )
 
-var rules map[string]map[string]string
+var rules map[string]map[string]map[string]string
 var size int = 19
 var status int = http.StatusNotFound
 var user string = "-"
-var VERSION string = "1.0.0"
+var VERSION string = "2013.08.08"
 
 func main() {
 	address := flag.String("address", "127.0.0.1", "The address to listen on")
@@ -74,14 +74,16 @@ func main() {
 func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", fmt.Sprintf("goredirect/%s", VERSION))
 	target := rules[strings.Split(r.Host, ":")[0]][r.URL.Path]
-	if target == "" {
+	if target == nil {
 		http.NotFound(w, r)
 		return
 	}
+	if target["reviewed"] != "" {
+		w.Header().Set("X-Last-Reviewed", target["reviewed"])
+	}
 	status = http.StatusMovedPermanently
-	//  len("<a href="">Moved Permanently</a>." == 33
 	size = len(target) + 33
-	http.Redirect(w, r, target, status)
+	http.Redirect(w, r, target["location"], status)
 	return
 }
 

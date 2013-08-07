@@ -1,19 +1,50 @@
 {
-	"www.example.com":{
-		"/foo":"/bar",
-		"/spam/":"/eggs/",
-		"/spam/":"/ham"
-		},
-	"localhost":{
-		"/baz":"/buz/",
-		"/local":"http://example.com/remote/",
-        "/tomorrow/": "http://example.com/gone",
-        "/here": "http://example.com/today"
-		},
-	"toshiba.local":{
-		"/happy": "http://example.com/hour",
-		"/koan": "https://example.com/riddle",
-		"/last": "/time",
-		"/": "/?word=foo"		
-	}
+    "example.com":{
+        "/here": {
+            "location": "/there/",
+            "reviewed": "Fri, 26 Jul 2013"
+            },
+        "/there/": {
+            "location": "http://remote.example.com/eggs/"
+            },
+        "/spam": {
+            "location": "http://ou.example.com/ham/?id=s0s9d8",
+            "reviewed": "Fri, 26 Jul 2013"
+            }
+        },
+    "localhost":{
+        "/baz": {
+            "location": "http://vip.example.com/buz/",
+            "reviewed": "Fri, 26 Jul 2013"
+            },
+        "/local?id=sn4ckb4r": {
+            "location": "http://vip.example.com/remote/",
+            "reviewed": "Fri, 26 Jul 2013"
+            },
+        "/tomorrow/": {
+            "location": "http://www.example.com/gone"
+            },
+        "/here": {
+            "location": "http://www.example.com/today",
+            "reviewed": "Fri, 26 Jul 2013"
+            }
+        },
+    "example.org":{
+        "/happy": {
+            "location": "http://archive.example.com/hour",
+            "reviewed": "Fri, 26 Jul 2013"
+            },
+        "/koan": {
+            "location": "https://www.example.com/riddle",
+            "reviewed": "Fri, 26 Jul 2013"
+            },
+        "/last": {
+            "location": "/time",
+            "reviewed": "Fri, 26 Jul 2013"
+            },
+        "/time": {
+            "location": "https://archive.example.com/?word=foo",
+            "reviewed": "Fri, 26 Jul 2013"
+            }
+    }
 }

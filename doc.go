@@ -16,29 +16,63 @@ Available arguments:
 
 Rules format:
 
-the rules file should be a hash where the keys are the domains that should be forwarded and each key's value is a hash where the keys are the aliases and values are target destinations. Aliases should always be the full path segment to be matched -- including query arguments. Keys may be the absolute target path or a complete URL. The target should almost invariably be a complete URL, but in my situation the redirects were sometimes many within a subdomain... Following is an example rules file
+The rules file should be a hash where the keys are the domains that should be forwarded and each key's value is a hash. In each hash at this level the keys are the aliases and values are a hash with target destinations under the key "location" and optionally a "reviewed" key with the last time the redirect was reviewed.
+
+Aliases should always be the full path segment to be matched -- including the slash and any query arguments. Location keys may be the absolute target *path* or a complete URL and the reviewed key is a string (I format them as RFC1123/RFC822 dates).
+
+The "location" target should almost invariably be a complete URL, but in my situation the redirects were sometimes many within a subdomain... Following is an example rules file:
 
 
     {
         "example.com":{
-            "/here":"/there/",
-            "/there/":"http://remote.example.com/eggs/",
-            "/spam":"http://ou.example.com/ham/?id=s0s9d8"
+            "/here": {
+                "location": "/there/",
+                "reviewed": "Fri, 26 Jul 2013"
+                },
+            "/there/": {
+                "location": "http://remote.example.com/eggs/"
+                },
+            "/spam": {
+                "location": "http://ou.example.com/ham/?id=s0s9d8",
+                "reviewed": "Fri, 26 Jul 2013"
+                }
             },
         "ou2.example.com":{
-            "/baz":"http://vip.example.com/buz/",
-            "/local?id=sn4ckb4r":"http://vip.example.com/remote/",
-            "/tomorrow/": "http://www.example.com/gone",
-            "/here": "http://www.example.com/today"
+            "/baz": {
+                "location": "http://vip.example.com/buz/",
+                "reviewed": "Fri, 26 Jul 2013"
+                },
+            "/local?id=sn4ckb4r": {
+                "location": "http://vip.example.com/remote/",
+                "reviewed": "Fri, 26 Jul 2013"
+                },
+            "/tomorrow/": {
+                "location": "http://www.example.com/gone"
+                },
+            "/here": {
+                "location": "http://www.example.com/today",
+                "reviewed": "Fri, 26 Jul 2013"
+                }
             },
         "example.org":{
-            "/happy": "http://archive.example.com/hour",
-            "/koan": "https://www.example.com/riddle",
-            "/last": "/time",
-            "/time": "https://archive.example.com/?word=foo"
+            "/happy": {
+                "location": "http://archive.example.com/hour",
+                "reviewed": "Fri, 26 Jul 2013"
+                },
+            "/koan": {
+                "location": "https://www.example.com/riddle",
+                "reviewed": "Fri, 26 Jul 2013"
+                },
+            "/last": {
+                "location": "/time",
+                "reviewed": "Fri, 26 Jul 2013"
+                },
+            "/time": {
+                "location": "https://archive.example.com/?word=foo",
+                "reviewed": "Fri, 26 Jul 2013"
+                }
         }
     }
-
 
 Motivation:
 
