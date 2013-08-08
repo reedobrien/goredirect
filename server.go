@@ -96,7 +96,7 @@ func Log(handler http.Handler) http.Handler {
 			user = "-"
 		}
 		fmt.Printf("%s - %s [%s] \"%s %s %s\" %d %d \"%s\" \"%s\"\n",
-			strings.Split(r.RemoteAddr, ":")[0], user, t.Format("02/Jan/2006:15:04:05 -0700"), r.Method, r.URL, r.Proto, status, size, r.Referer(), r.UserAgent())
+			strings.Split(r.RemoteAddr, ":")[0], user, t.Format("02/Jan/2006:15:04:05 -0700"), r.Method, strings.Split(r.Host, ":")[0]+r.URL.Path, r.Proto, status, size, r.Referer(), r.UserAgent())
 		handler.ServeHTTP(w, r)
 	})
 }
