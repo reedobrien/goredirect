@@ -16,6 +16,7 @@ import (
 	"time"
 )
 
+var remoteAddr string
 var rules map[string]map[string]map[string]string
 var size int = 19
 var status int = http.StatusNotFound
@@ -97,8 +98,12 @@ func logit(r *http.Request, s int) {
 	} else {
 		user = "-"
 	}
+	remoteAddr = r.Header.Get("X-Forwarded-For")
+	if remoteAddr == "" {
+		remoteAddr = strings.Split(r.RemoteAddr, ":")[0]
+	}
 	fmt.Printf("%s %s - %s [%s] \"%s %s %s\" %d %d \"%s\" \"%s\"\n",
-		strings.Split(r.Host, ":")[0], strings.Split(r.RemoteAddr, ":")[0], user, t.Format("02/Jan/2006:15:04:05 -0700"), r.Method, r.URL.Path, r.Proto, status, size, r.Referer(), r.UserAgent())
+		strings.Split(r.Host, ":")[0], remoteAddr, user, t.Format("02/Jan/2006:15:04:05 -0700"), r.Method, r.URL.Path, r.Proto, status, size, r.Referer(), r.UserAgent())
 }
 
 func loadRules(path string) (err error) {
