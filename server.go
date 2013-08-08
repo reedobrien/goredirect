@@ -68,7 +68,7 @@ func main() {
 	}
 
 	http.HandleFunc("/", handler)
-	log.Fatal(http.ListenAndServe(*address+":"+*port, Log(http.DefaultServeMux)))
+	log.Fatal(http.ListenAndServe(*address+":"+*port, nil)) //, Log(http.DefaultServeMux)))
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +77,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	if target == nil {
 		status = http.StatusNotFound
 		http.NotFound(w, r)
+		logit(r, status)
 		return
 	}
 	if target["reviewed"] != "" {
@@ -85,21 +86,19 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	status = http.StatusMovedPermanently
 	size = len(target) + 33
 	http.Redirect(w, r, target["location"], status)
+	logit(r, status)
 	return
 }
 
-func Log(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		t := time.Now()
-		if r.URL.User != nil {
-			user = r.URL.User.Username()
-		} else {
-			user = "-"
-		}
-		fmt.Printf("%s - %s [%s] \"%s %s %s\" %d %d \"%s\" \"%s\"\n",
-			strings.Split(r.RemoteAddr, ":")[0], user, t.Format("02/Jan/2006:15:04:05 -0700"), r.Method, strings.Split(r.Host, ":")[0]+r.URL.Path, r.Proto, status, size, r.Referer(), r.UserAgent())
-		handler.ServeHTTP(w, r)
-	})
+func logit(r *http.Request, s int) {
+	t := time.Now()
+	if r.URL.User != nil {
+		user = r.URL.User.Username()
+	} else {
+		user = "-"
+	}
+	fmt.Printf("%s %s - %s [%s] \"%s %s %s\" %d %d \"%s\" \"%s\"\n",
+		strings.Split(r.Host, ":")[0], strings.Split(r.RemoteAddr, ":")[0], user, t.Format("02/Jan/2006:15:04:05 -0700"), r.Method, r.URL.Path, r.Proto, status, size, r.Referer(), r.UserAgent())
 }
 
 func loadRules(path string) (err error) {
