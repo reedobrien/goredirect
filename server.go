@@ -75,6 +75,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", fmt.Sprintf("goredirect/%s", VERSION))
 	target := rules[strings.Split(r.Host, ":")[0]][r.URL.Path]
 	if target == nil {
+		status = http.StatusNotFound
 		http.NotFound(w, r)
 		return
 	}
