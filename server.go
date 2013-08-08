@@ -20,7 +20,7 @@ var rules map[string]map[string]map[string]string
 var size int = 19
 var status int = http.StatusNotFound
 var user string = "-"
-var VERSION string = "2013.08.08"
+var VERSION string = "2013.08.09"
 
 func main() {
 	address := flag.String("address", "127.0.0.1", "The address to listen on")
