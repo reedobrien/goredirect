@@ -95,4 +95,4 @@ As if... , but file them in the [Github issue tracker][issues] if you find one.
 
 
 [issues]:https://github.com/reedobrien/goredirect/
-[downloads]:http://reedobrien.github.io/goredirect/downloads/1.0.0/downloads
+[downloads]:http://reedobrien.github.io/goredirect/downloads/2013.08.09/downloads
