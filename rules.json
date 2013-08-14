@@ -13,6 +13,13 @@
             }
         },
     "localhost":{
+        "*": {
+            "location": "http://glob.example.org/", 
+            "reviewed": "Mon, 12 Aug 2013"
+        },
+        "/home":{
+            "location": "/"
+            },
         "/baz": {
             "location": "http://vip.example.com/buz/",
             "reviewed": "Fri, 26 Jul 2013"
@@ -29,6 +36,15 @@
             "reviewed": "Fri, 26 Jul 2013"
             }
         },
+    "127.0.0.1": {
+        "default": {
+            "location": "http://example.net/default",
+            "reviewed": "Tues, 13 Aug 2013"
+            },
+        "/notdefault": {
+            "location": "http://example.net/notdefault"
+        }
+    },
     "example.org":{
         "/happy": {
             "location": "http://archive.example.com/hour",

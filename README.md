@@ -27,6 +27,10 @@ The "location" target should almost invariably be a complete URL, but in my situ
 ```
 {
     "example.com":{
+        "*": {
+        "location": "http://glob.example.org/",
+        "reviewed": "Mon, 12 Aug 2013"
+        },
         "/here": {
             "location": "/there/",
             "reviewed": "Fri, 26 Jul 2013"
@@ -40,6 +44,13 @@ The "location" target should almost invariably be a complete URL, but in my situ
             }
         },
     "ou2.example.com":{
+        "default": {
+            "location": "http://example.net/default",
+            "reviewed": "Tues, 13 Aug 2013"
+            },
+        "/notdefault": {
+            "location": "http://example.net/notdefault"
+            },
         "/baz": {
             "location": "http://vip.example.com/buz/",
             "reviewed": "Fri, 26 Jul 2013"
@@ -95,4 +106,4 @@ As if... , but file them in the [Github issue tracker][issues] if you find one.
 
 
 [issues]:https://github.com/reedobrien/goredirect/
-[downloads]:http://reedobrien.github.io/goredirect/downloads/2013.08.09/downloads
+[downloads]:http://reedobrien.github.io/goredirect/downloads/2013.08.12/downloads

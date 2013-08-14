@@ -22,9 +22,23 @@ Aliases should always be the full path segment to be matched -- including the sl
 
 The "location" target should almost invariably be a complete URL, but in my situation the redirects were sometimes many within a subdomain... Following is an example rules file:
 
+Use the key "default" to name a location to which all non-matching requests should be redirected.
+
+Use the key "*" to specify that all requests should be redirected to a location with the URI path and query strings intact. If a glob exists "default" will never be found.  This will parse the incoming request and the location with url. Parse and update the scheme, host, and port in the request URL to generate the location to return in the redirect response.
+
+
+Processing in the following order:
+    1. match a path: return provided location
+    2. check for "*": return with base and request path + query args
+    3. check for "default" and return provided location
+    4. return not found
 
     {
         "example.com":{
+            "*": {
+            "location": "http://glob.example.org/",
+            "reviewed": "Mon, 12 Aug 2013"
+            },
             "/here": {
                 "location": "/there/",
                 "reviewed": "Fri, 26 Jul 2013"
@@ -38,6 +52,13 @@ The "location" target should almost invariably be a complete URL, but in my situ
                 }
             },
         "ou2.example.com":{
+            "default": {
+                "location": "http://example.net/default",
+                "reviewed": "Tues, 13 Aug 2013"
+                },
+            "/notdefault": {
+                "location": "http://example.net/notdefault"
+                },
             "/baz": {
                 "location": "http://vip.example.com/buz/",
                 "reviewed": "Fri, 26 Jul 2013"
